@@ -9,9 +9,15 @@ const ytsr = require('ytsr');
  *
  */
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   const limit = req.query.limit || 1;
   const searchString = req.query.query;
+  const returnNotFoundError = (res) => {
+    res.status(404).json({
+      status: 'error',
+      message: 'No results found'
+    });
+  };
 
   if (!searchString) {
     return res.status(500).json({
@@ -20,40 +26,25 @@ module.exports = (req, res) => {
     });
   }
 
-  ytsr.getFilters(searchString, (error, filters) => {
-    if (error) {
-      return res.status(500).json({
-        status: 'error',
-        message: error
-      });
+  try {
+    const filters = await ytsr.getFilters(searchString);
+    const typeFilter = filters.get('Type').get('Video');
+
+    if (typeFilter.url === null) {
+      return returnNotFoundError(res);
     }
 
-    const typeFilter = filters.get('Type').find(item => item.name === 'Video');
+    const searchResults = await ytsr(typeFilter.url, { limit });
 
-    ytsr.getFilters(typeFilter.ref, (error, filters) => {
-      if (error) {
-        return res.status(500).json({
-          status: 'error',
-          message: error
-        });
-      }
+    if (searchResults === undefined) {
+      return returnNotFoundError(res);
+    }
 
-      const durationFilter = filters.get('Duration').find(o => o.name.startsWith('Short'));
-      const options = {
-        limit,
-        nextpageRef: durationFilter.ref
-      };
-
-      ytsr(null, options, (err, searchResults) => {
-        if (searchResults === undefined) {
-          return res.status(500).json({
-            status: 'error',
-            message: 'No results found'
-          });
-        }
-
-        return res.json(searchResults);
-      });
+    return res.json(searchResults);
+  } catch (error) {
+    return res.status(500).json({
+      status: 'error',
+      message: error.message
     });
-  });
+  }
 };
