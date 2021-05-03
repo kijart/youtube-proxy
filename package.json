@@ -1,6 +1,6 @@
 {
   "name": "youtube-proxy",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "YouTube proxy API that search and stream videos/audios",
   "author": "Luis Miguel Vicente Fuentes",
   "repository": {
@@ -9,7 +9,7 @@
   },
   "main": "src/index.js",
   "engines": {
-    "node": "12"
+    "node": "14"
   },
   "scripts": {
     "start": "npm run start:pro",
@@ -19,11 +19,11 @@
   },
   "dependencies": {
     "express": "4.17.1",
-    "ytdl-core": "3.2.2",
-    "ytsr": "0.1.12"
+    "ytdl-core": "4.5.0",
+    "ytsr": "3.5.0"
   },
   "devDependencies": {
-    "eslint": "7.7.0",
-    "nodemon": "2.0.4"
+    "eslint": "7.25.0",
+    "nodemon": "2.0.7"
   }
 }
